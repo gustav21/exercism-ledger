@@ -22,18 +22,22 @@ let formatDesc (des:string) =
 let formatChange (locale:Locale) (currency:Currency) chg =
     let c = float chg / 100.0
 
-    if c < 0.0 then 
+    let currencyStr =
         match locale.Type with
-        | Dutch -> 
-            ($"{currency.Sign} " + c.ToString("#,#0.00", new CultureInfo(locale.Name))).PadLeft(13)
-        | American ->
-            ($"({currency.Sign}" + c.ToString("#,#0.00", new CultureInfo(locale.Name)).Substring(1) + ")").PadLeft(13)
-    else 
-        match locale.Type with
-        | Dutch ->
-            ($"{currency.Sign} " + c.ToString("#,#0.00", new CultureInfo(locale.Name)) + " ").PadLeft(13)
-        | American ->
-            ($"{currency.Sign}" + c.ToString("#,#0.00", new CultureInfo(locale.Name)) + " ").PadLeft(13)
+        | Dutch -> currency.Sign + " "
+        | American -> currency.Sign
+    
+    let changeStr =
+        let res = c.ToString("#,#0.00", new CultureInfo(locale.Name))
+        if c < 0.0 then res else res + " "
+
+    let res =
+        if c < 0.0 && locale.Type = American then
+            "(" + currencyStr + changeStr.Substring(1) + ")"
+        else
+            currencyStr + changeStr
+    
+    res.PadLeft(13)
 
 let formatLedger currency locale entries =
     let currency = Currency.create currency
