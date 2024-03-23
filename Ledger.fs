@@ -2,6 +2,7 @@ module Ledger
 
 open System
 open System.Globalization
+open LedgerTypes
 
 type Entry = { dat: DateTime; des: string; chg: int }
 
@@ -62,14 +63,16 @@ let formatChange locale currency chg =
             failwith "Unexpected locale"
 
 let formatLedger currency locale entries =
+    let currency = Currency.create currency
+    let locale = Locale.create locale
     
     let res =
-        if locale = "en-US" then "Date       | Description               | Change       "
-        elif locale = "nl-NL" then "Datum      | Omschrijving              | Verandering  "
+        if locale.Name = "en-US" then "Date       | Description               | Change       "
+        elif locale.Name = "nl-NL" then "Datum      | Omschrijving              | Verandering  "
         else failwith "Unexpected locale"
         
     let folder res x =
-        res + Environment.NewLine + formatDate locale x.dat + " | " + formatDesc x.des + " | " + formatChange locale currency x.chg
+        res + Environment.NewLine + formatDate locale.Name x.dat + " | " + formatDesc x.des + " | " + formatChange locale.Name currency.Name x.chg
     
     entries
     |> List.sortBy (fun x -> x.dat, x.des, x.chg)
