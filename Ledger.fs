@@ -40,9 +40,9 @@ let formatLedger currency locale entries =
     let locale = Locale.create locale
     
     let res =
-        if locale.Name = "en-US" then "Date       | Description               | Change       "
-        elif locale.Name = "nl-NL" then "Datum      | Omschrijving              | Verandering  "
-        else failwith "Unexpected locale"
+        match locale.Type with
+        | American -> "Date       | Description               | Change       "
+        | Dutch -> "Datum      | Omschrijving              | Verandering  "
         
     let folder res x =
         res + Environment.NewLine + formatDate locale x.dat + " | " + formatDesc x.des + " | " + formatChange locale currency x.chg
