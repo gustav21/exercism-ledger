@@ -19,23 +19,21 @@ let formatDesc (des:string) =
     else 
         des.[0..21] + "..."
 
-let formatChange locale (currency:Currency) chg =
+let formatChange (locale:Locale) (currency:Currency) chg =
     let c = float chg / 100.0
 
     if c < 0.0 then 
-        if locale = "nl-NL" then
-            ($"{currency.Sign} " + c.ToString("#,#0.00", new CultureInfo("nl-NL"))).PadLeft(13)
-        elif locale = "en-US" then
-            ($"({currency.Sign}" + c.ToString("#,#0.00", new CultureInfo("en-US")).Substring(1) + ")").PadLeft(13)
-        else
-            failwith "Unexpected locale"
+        match locale.Type with
+        | Dutch -> 
+            ($"{currency.Sign} " + c.ToString("#,#0.00", new CultureInfo(locale.Name))).PadLeft(13)
+        | American ->
+            ($"({currency.Sign}" + c.ToString("#,#0.00", new CultureInfo(locale.Name)).Substring(1) + ")").PadLeft(13)
     else 
-        if locale = "nl-NL" then
-            ($"{currency.Sign} " + c.ToString("#,#0.00", new CultureInfo("nl-NL")) + " ").PadLeft(13)
-        elif locale = "en-US" then
-            ($"{currency.Sign}" + c.ToString("#,#0.00", new CultureInfo("en-US")) + " ").PadLeft(13)
-        else
-            failwith "Unexpected locale"
+        match locale.Type with
+        | Dutch ->
+            ($"{currency.Sign} " + c.ToString("#,#0.00", new CultureInfo(locale.Name)) + " ").PadLeft(13)
+        | American ->
+            ($"{currency.Sign}" + c.ToString("#,#0.00", new CultureInfo(locale.Name)) + " ").PadLeft(13)
 
 let formatLedger currency locale entries =
     let currency = Currency.create currency
@@ -47,7 +45,7 @@ let formatLedger currency locale entries =
         else failwith "Unexpected locale"
         
     let folder res x =
-        res + Environment.NewLine + formatDate locale x.dat + " | " + formatDesc x.des + " | " + formatChange locale.Name currency x.chg
+        res + Environment.NewLine + formatDate locale x.dat + " | " + formatDesc x.des + " | " + formatChange locale currency x.chg
     
     entries
     |> List.sortBy (fun x -> x.dat, x.des, x.chg)
