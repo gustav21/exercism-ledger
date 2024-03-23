@@ -8,13 +8,8 @@ type Entry = { dat: DateTime; des: string; chg: int }
 
 let mkEntry (date: string) description change = { dat = DateTime.Parse(date, CultureInfo.InvariantCulture); des = description; chg = change }
 
-let formatDate locale (dat:DateTime) =
-    if locale = "nl-NL" then 
-        dat.ToString("dd-MM-yyyy")
-    elif locale = "en-US" then 
-        dat.ToString("MM\/dd\/yyyy")
-    else
-        failwith "Unexpected locale"
+let formatDate (locale:Locale) (dat:DateTime) =
+    dat.ToString(locale.Format)
 
 let formatDesc (des:string) =
     if des.Length <= 25 then 
@@ -72,7 +67,7 @@ let formatLedger currency locale entries =
         else failwith "Unexpected locale"
         
     let folder res x =
-        res + Environment.NewLine + formatDate locale.Name x.dat + " | " + formatDesc x.des + " | " + formatChange locale.Name currency.Name x.chg
+        res + Environment.NewLine + formatDate locale x.dat + " | " + formatDesc x.des + " | " + formatChange locale.Name currency.Name x.chg
     
     entries
     |> List.sortBy (fun x -> x.dat, x.des, x.chg)
