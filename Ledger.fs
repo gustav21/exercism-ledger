@@ -63,22 +63,14 @@ let formatChange locale currency chg =
 
 let formatLedger currency locale entries =
     
-    let mutable res = ""
-
-    if locale = "en-US" then res <- res + "Date       | Description               | Change       "
-    if locale = "nl-NL" then res <- res + "Datum      | Omschrijving              | Verandering  "
+    let res =
+        if locale = "en-US" then "Date       | Description               | Change       "
+        elif locale = "nl-NL" then "Datum      | Omschrijving              | Verandering  "
+        else failwith "Unexpected locale"
         
-    for x in List.sortBy (fun x -> x.dat, x.des, x.chg) entries do
-
-        res <- res + Environment.NewLine
-
-        res <- res + formatDate locale x.dat
-                
-        res <- res + " | "
-
-        res <- res + formatDesc x.des
-
-        res <- res + " | "
-
-        res <- res + formatChange locale currency x.chg
-    res
+    let folder res x =
+        res + Environment.NewLine + formatDate locale x.dat + " | " + formatDesc x.des + " | " + formatChange locale currency x.chg
+    
+    entries
+    |> List.sortBy (fun x -> x.dat, x.des, x.chg)
+    |> List.fold folder res
